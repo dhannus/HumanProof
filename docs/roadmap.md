@@ -20,11 +20,11 @@ The goal is one thing: a working demo that makes the concept tangible.
 
 - [x] Define 10 User Stories covering all major stakeholders
 - [x] Write project README
-- [ ] Browser Extension PoC (local ZKP simulation, no server)
-- [ ] Human Label spec v0.1 (draft for community review)
-- [ ] Machine Token spec v0.1 (draft for community review)
-- [ ] Architecture document v0.1
-- [ ] Threat model v0.1
+- [x] Browser Extension PoC (local ZKP simulation, no server)
+- [x] Human Label spec v0.1 (draft for community review)
+- [x] Machine Token spec v0.1 (draft for community review)
+- [x] Architecture document v0.1
+- [x] Threat model v0.1
 - [ ] First GitHub stars, first contributors, first issues
 
 **Gate:** Working browser extension demo + at least one external contributor.

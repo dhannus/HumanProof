@@ -166,7 +166,8 @@ humanproof/
 ├── api/                       # Reference API implementation (planned)
 ├── CONTRIBUTING.md
 ├── SECURITY.md
-└── README.md
+├── README.md
+└── humanproof-demo.html       # Live Demo under http://tweakz.de/
 ```
 
 ---
