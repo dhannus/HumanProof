@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HumanProof — Interactive Demo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg:      #0a0c08;
+    --surface: #111309;
+    --border:  #1e2218;
+    --accent:  #c6ff00;
+    --red:     #ff3c6e;
+    --orange:  #ff9f40;
+    --teal:    #00d4aa;
+    --text:    #dde0d0;
+    --muted:   #525c40;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── grid bg ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg,  transparent, transparent 39px, rgba(198,255,0,.02) 39px, rgba(198,255,0,.02) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(198,255,0,.02) 39px, rgba(198,255,0,.02) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── layout ── */
+  .page { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* ── header ── */
+  .header { margin-bottom: 56px; animation: fadeUp .6s ease both; }
+
+  .poc-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'DM Mono', monospace; font-size: 10px;
+    letter-spacing: .18em; text-transform: uppercase;
+    border: 1px solid var(--orange); color: var(--orange);
+    padding: 4px 12px; margin-bottom: 20px;
+  }
+  .poc-badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--orange); animation: pulse 1.4s infinite;
+  }
+
+  h1 {
+    font-size: clamp(32px, 6vw, 64px); font-weight: 800;
+    line-height: 1; letter-spacing: -.03em; margin-bottom: 16px;
+  }
+  h1 .green { color: var(--accent); }
+
+  .tagline {
+    font-family: 'DM Mono', monospace; font-size: 12px;
+    color: var(--muted); line-height: 1.8; max-width: 500px;
+    border-left: 2px solid var(--border); padding-left: 14px;
+  }
+
+  /* ── two-col ── */
+  .cols { display: grid; grid-template-columns: 340px 1fr; gap: 24px; align-items: start; }
+
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+
+  /* ── extension mockup ── */
+  .ext-shell {
+    border: 1px solid var(--border); background: var(--surface);
+    animation: fadeUp .6s .1s ease both;
+    position: sticky; top: 24px;
+  }
+
+  .ext-header {
+    background: #0d0f0a; border-bottom: 1px solid var(--border);
+    padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  }
+  .ext-logo {
+    width: 22px; height: 22px; border: 2px solid var(--accent);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .ext-title { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .07em; }
+  .ext-sub   { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .ext-body { padding: 14px; }
+
+  .poc-warn {
+    background: rgba(255,159,64,.07); border: 1px solid rgba(255,159,64,.3);
+    padding: 8px 10px; font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--orange); line-height: 1.55; margin-bottom: 12px;
+  }
+
+  /* status card */
+  .status-card {
+    border: 1px solid var(--border); background: #0a0c08;
+    padding: 12px; margin-bottom: 10px;
+  }
+  .status-lbl {
+    font-family: 'DM Mono', monospace; font-size: 9px;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px;
+  }
+  .status-val { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; }
+
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    transition: background .3s, box-shadow .3s;
+  }
+  .dot-off  { background: var(--muted); }
+  .dot-on   { background: var(--accent); box-shadow: 0 0 7px var(--accent); }
+  .dot-spin { background: var(--orange); animation: pulse 0.7s infinite; }
+
+  /* meta grid */
+  .meta-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+    margin-bottom: 10px; display: none;
+  }
+  .meta-cell {
+    border: 1px solid var(--border); background: #0a0c08; padding: 8px 10px;
+  }
+  .mc-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .mc-val { font-family: 'DM Mono', monospace; font-size: 11px; }
+  .green  { color: var(--accent); }
+  .muted  { color: var(--muted); }
+
+  /* token box */
+  .token-box {
+    border: 1px solid var(--border); background: #070908;
+    padding: 9px 10px; margin-bottom: 10px; display: none;
+  }
+  .token-lbl { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .token-val { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent); opacity: .7; word-break: break-all; line-height: 1.4; }
+
+  /* buttons */
+  .btn {
+    width: 100%; padding: 9px; border: 1px solid; background: transparent;
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: .12em;
+    text-transform: uppercase; cursor: pointer; margin-bottom: 7px;
+    transition: background .15s, color .15s;
+  }
+  .btn:last-child { margin-bottom: 0; }
+  .btn-go  { border-color: var(--accent); color: var(--accent); }
+  .btn-go:hover:not(:disabled) { background: var(--accent); color: var(--bg); }
+  .btn-go:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-del { border-color: var(--red); color: var(--red); display: none; }
+  .btn-del:hover { background: rgba(255,60,110,.1); }
+
+  .ext-footer {
+    border-top: 1px solid var(--border); padding: 7px 14px;
+    display: flex; justify-content: space-between;
+  }
+  .ext-footer a {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); text-decoration: none;
+  }
+  .ext-footer a:hover { color: var(--accent); }
+
+  /* ── right col: explainer + flow ── */
+  .right { display: flex; flex-direction: column; gap: 20px; animation: fadeUp .6s .2s ease both; }
+
+  .card {
+    border: 1px solid var(--border); background: var(--surface); padding: 22px 24px;
+  }
+  .card-title {
+    font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .2em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+
+  /* flow steps */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .step {
+    display: grid; grid-template-columns: 32px 1fr; gap: 0;
+    position: relative;
+  }
+  .step-num {
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
+    color: var(--accent); padding-top: 3px;
+  }
+  .step-body { padding: 0 0 20px 0; border-left: 1px solid var(--border); padding-left: 16px; margin-left: -1px; }
+  .step:last-child .step-body { border-left: 1px dashed #1e2218; padding-bottom: 0; }
+  .step-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; line-height: 1.2; }
+  .step-desc  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .step-desc code { color: var(--teal); background: rgba(0,212,170,.08); padding: 1px 5px; }
+
+  /* live JSON output */
+  .json-output {
+    background: #070908; border: 1px solid var(--border);
+    padding: 14px; font-family: 'DM Mono', monospace; font-size: 11px;
+    line-height: 1.7; color: var(--muted); min-height: 160px;
+    transition: all .3s; overflow-x: auto;
+  }
+  .json-output.has-data { border-color: var(--accent); }
+  .jk  { color: #7a9cff; }    /* key */
+  .jvs { color: var(--accent); } /* string value */
+  .jvn { color: var(--orange); } /* number */
+  .jvb { color: var(--teal); }   /* bool/null */
+
+  /* request simulation */
+  .req-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border: 1px solid var(--border);
+    margin-bottom: 6px; font-family: 'DM Mono', monospace; font-size: 11px;
+    transition: border-color .3s, background .3s;
+  }
+  .req-row:last-child { margin-bottom: 0; }
+  .req-method { color: var(--muted); min-width: 28px; }
+  .req-url    { flex: 1; color: var(--text); opacity: .7; }
+  .req-badge  {
+    font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+    padding: 2px 8px; border: 1px solid; flex-shrink: 0;
+  }
+  .badge-pending { border-color: var(--muted); color: var(--muted); }
+  .badge-ok      { border-color: var(--accent); color: var(--accent); animation: fadeIn .3s; }
+  .badge-blocked { border-color: var(--red); color: var(--red); animation: fadeIn .3s; }
+
+  /* http header preview */
+  .header-preview {
+    background: #070908; border: 1px solid var(--border);
+    padding: 12px; font-family: 'DM Mono', monospace; font-size: 11px;
+    line-height: 1.8; display: none;
+  }
+  .header-preview.visible { display: block; border-color: var(--accent); }
+  .hk { color: #7a9cff; }
+  .hv { color: var(--accent); opacity: .75; word-break: break-all; }
+
+  /* footer */
+  .page-footer {
+    margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  }
+  .page-footer a { color: var(--muted); text-decoration: none; }
+  .page-footer a:hover { color: var(--accent); }
+
+  /* animations */
+  @keyframes fadeUp  { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pulse   { 0%,100% { opacity: 1; } 50% { opacity: .3; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="poc-badge">Proof of Concept · No real identity data</div>
+    <h1>Human<span class="green">Proof</span></h1>
+    <p class="tagline">
+      An open protocol to verify humans online — anonymously.<br>
+      This demo simulates the browser extension without requiring installation.
+    </p>
+  </header>
+
+  <!-- TWO COLUMN -->
+  <div class="cols">
+
+    <!-- LEFT: Extension UI mockup -->
+    <div class="ext-shell">
+      <div class="ext-header">
+        <div class="ext-logo">H</div>
+        <div>
+          <div class="ext-title">HUMANPROOF</div>
+          <div class="ext-sub">Anonymous human verification</div>
+        </div>
+      </div>
+
+      <div class="ext-body">
+        <div class="poc-warn">
+          ⚠ PoC — simulated ZKP.<br>
+          No real identity data used or transmitted.
+        </div>
+
+        <div class="status-card">
+          <div class="status-lbl">Status</div>
+          <div class="status-val">
+            <div class="dot dot-off" id="dot"></div>
+            <span id="statusText">Not verified</span>
+          </div>
+        </div>
+
+        <div class="meta-grid" id="metaGrid">
+          <div class="meta-cell"><div class="mc-lbl">Type</div><div class="mc-val green">Human Label</div></div>
+          <div class="meta-cell"><div class="mc-lbl">Scope</div><div class="mc-val">Session</div></div>
+          <div class="meta-cell"><div class="mc-lbl">Expires in</div><div class="mc-val" id="expiresIn">—</div></div>
+          <div class="meta-cell"><div class="mc-lbl">Age group</div><div class="mc-val muted">Not disclosed</div></div>
+        </div>
+
+        <div class="token-box" id="tokenBox">
+          <div class="token-lbl">Label preview (truncated)</div>
+          <div class="token-val" id="tokenPreview">—</div>
+        </div>
+
+        <button class="btn btn-go" id="btnVerify">▶ Generate Human Label</button>
+        <button class="btn btn-del" id="btnRevoke">✕ Revoke Label</button>
+      </div>
+
+      <div class="ext-footer">
+        <a href="https://github.com/YOUR_USERNAME/humanproof" target="_blank">GitHub</a>
+        <a href="#how">How it works</a>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">v0.1.0-poc</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Explainer + live output -->
+    <div class="right">
+
+      <!-- Flow -->
+      <div class="card" id="how">
+        <div class="card-title">// How it works</div>
+        <div class="flow">
+          <div class="step">
+            <div class="step-num">01</div>
+            <div class="step-body">
+              <div class="step-title">User triggers verification</div>
+              <div class="step-desc">Once per session. In production: ZKP proof generated from an eIDAS 2.0 wallet credential — entirely on-device. Nothing leaves the browser raw.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">02</div>
+            <div class="step-body">
+              <div class="step-title">Human Label is generated</div>
+              <div class="step-desc">A short-lived, unlinkable token. TTL: 1 hour. Contains <code>proof</code>, <code>issued_at</code>, <code>scope</code>. No name, no IP, no identifier.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">03</div>
+            <div class="step-body">
+              <div class="step-title">Label attached to requests</div>
+              <div class="step-desc">The extension injects <code>X-HumanProof-Label</code> into outgoing HTTP headers. Platforms verify in &lt;50 ms via open API.</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">04</div>
+            <div class="step-body">
+              <div class="step-title">Platform responds accordingly</div>
+              <div class="step-desc">Human → full access. Registered AI with Machine Token → declared access. No label → <code>HTTP 451</code> or flagged.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Label JSON -->
+      <div class="card">
+        <div class="card-title">// Generated Label (live)</div>
+        <div class="json-output" id="jsonOutput">
+          <span style="color:var(--muted);font-style:italic">// Click "Generate Human Label" to see output</span>
+        </div>
+      </div>
+
+      <!-- HTTP Header Preview -->
+      <div class="card">
+        <div class="card-title">// HTTP Header (what platforms receive)</div>
+        <div class="header-preview" id="headerPreview">
+          <span class="hk">X-HumanProof-Label:</span> <span class="hv" id="headerVal">—</span><br>
+          <span class="hk">X-HumanProof-Version:</span> <span class="hv">0.1</span>
+        </div>
+        <div id="headerPlaceholder" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);font-style:italic">
+          // No label active — header not injected
+        </div>
+      </div>
+
+      <!-- Request simulation -->
+      <div class="card">
+        <div class="card-title">// Platform Verification Simulation</div>
+        <div id="reqList">
+          <div class="req-row" id="req1">
+            <span class="req-method">GET</span>
+            <span class="req-url">news-platform.example/comments</span>
+            <span class="req-badge badge-pending" id="r1badge">pending</span>
+          </div>
+          <div class="req-row" id="req2">
+            <span class="req-method">POST</span>
+            <span class="req-url">civic-forum.example/vote</span>
+            <span class="req-badge badge-pending" id="r2badge">pending</span>
+          </div>
+          <div class="req-row" id="req3">
+            <span class="req-method">GET</span>
+            <span class="req-url">age-restricted.example/content</span>
+            <span class="req-badge badge-pending" id="r3badge">pending</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right -->
+  </div><!-- /cols -->
+
+  <footer class="page-footer">
+    <span>HumanProof · Open Source · <a href="https://github.com/YOUR_USERNAME/humanproof" target="_blank">GitHub</a></span>
+    <span>EUPL-1.2 · Built in public · Not affiliated with any government agency</span>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+'use strict';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let currentLabel = null;
+let countdownInterval = null;
+const TTL = 3600;
+
+// ── DOM ──────────────────────────────────────────────────────────────────────
+const dot          = document.getElementById('dot');
+const statusText   = document.getElementById('statusText');
+const metaGrid     = document.getElementById('metaGrid');
+const tokenBox     = document.getElementById('tokenBox');
+const tokenPreview = document.getElementById('tokenPreview');
+const expiresIn    = document.getElementById('expiresIn');
+const btnVerify    = document.getElementById('btnVerify');
+const btnRevoke    = document.getElementById('btnRevoke');
+const jsonOutput   = document.getElementById('jsonOutput');
+const headerPreview    = document.getElementById('headerPreview');
+const headerPlaceholder = document.getElementById('headerPlaceholder');
+const headerVal    = document.getElementById('headerVal');
+
+// ── Buttons ──────────────────────────────────────────────────────────────────
+btnVerify.addEventListener('click', async () => {
+  renderPending();
+  await sleep(1300); // simulate ZKP computation time
+  currentLabel = createLabel();
+  renderActive(currentLabel);
+  updateRequestSim(true);
+});
+
+btnRevoke.addEventListener('click', () => {
+  currentLabel = null;
+  renderInactive();
+  updateRequestSim(false);
+});
+
+// ── Label generation (simulated ZKP) ────────────────────────────────────────
+function createLabel() {
+  const now = Math.floor(Date.now() / 1000);
+  return {
+    version:    '0.1',
+    type:       'human-label',
+    proof:      randomHex(64),
+    issued_at:  now,
+    ttl:        TTL,
+    expires_at: now + TTL,
+    scope:      'session',
+    age_group:  null,
+    poc:        true
+  };
+}
+
+function randomHex(len) {
+  const chars = '0123456789abcdef';
+  return Array.from({ length: len }, () => chars[Math.random() * 16 | 0]).join('');
+}
+
+// ── Renderers ────────────────────────────────────────────────────────────────
+function renderPending() {
+  dot.className = 'dot dot-spin';
+  statusText.textContent = 'Generating proof…';
+  btnVerify.disabled = true;
+  btnVerify.textContent = '… Computing ZKP';
+  jsonOutput.innerHTML = '<span style="color:var(--orange)">// Computing Zero-Knowledge Proof…</span>';
+  jsonOutput.classList.remove('has-data');
+}
+
+function renderActive(label) {
+  dot.className = 'dot dot-on';
+  statusText.textContent = 'Human verified ✓';
+
+  metaGrid.style.display = 'grid';
+  tokenBox.style.display = 'block';
+  tokenPreview.textContent = `hp0.1:${label.proof.slice(0, 28)}…`;
+
+  btnVerify.style.display = 'none';
+  btnRevoke.style.display = 'block';
+  btnRevoke.style.removeProperty('display') // reset
+  btnRevoke.style.display = 'block';
+
+  // JSON output
+  jsonOutput.classList.add('has-data');
+  jsonOutput.innerHTML = renderJSON(label);
+
+  // HTTP Header
+  const encoded = btoa(JSON.stringify(label));
+  headerVal.textContent = encoded.slice(0, 48) + '…';
+  headerPreview.classList.add('visible');
+  headerPlaceholder.style.display = 'none';
+
+  startCountdown(label);
+}
+
+function renderInactive() {
+  dot.className = 'dot dot-off';
+  statusText.textContent = 'Not verified';
+  metaGrid.style.display = 'none';
+  tokenBox.style.display = 'none';
+  btnVerify.style.display = 'block';
+  btnVerify.disabled = false;
+  btnVerify.textContent = '▶ Generate Human Label';
+  btnRevoke.style.display = 'none';
+
+  jsonOutput.innerHTML = '<span style="color:var(--muted);font-style:italic">// Click "Generate Human Label" to see output</span>';
+  jsonOutput.classList.remove('has-data');
+
+  headerPreview.classList.remove('visible');
+  headerPlaceholder.style.display = 'block';
+
+  stopCountdown();
+}
+
+// ── JSON pretty printer ──────────────────────────────────────────────────────
+function renderJSON(obj) {
+  const lines = ['{'];
+  const entries = Object.entries(obj);
+  entries.forEach(([k, v], i) => {
+    const comma = i < entries.length - 1 ? ',' : '';
+    let val;
+    if (v === null)          val = `<span class="jvb">null</span>`;
+    else if (typeof v === 'boolean') val = `<span class="jvb">${v}</span>`;
+    else if (typeof v === 'number')  val = `<span class="jvn">${v}</span>`;
+    else {
+      const display = k === 'proof' ? v.slice(0, 20) + '…' : v;
+      val = `<span class="jvs">"${display}"</span>`;
+    }
+    lines.push(`  <span class="jk">"${k}"</span>: ${val}${comma}`);
+  });
+  lines.push('}');
+  return lines.join('\n');
+}
+
+// ── Countdown ────────────────────────────────────────────────────────────────
+function startCountdown(label) {
+  stopCountdown();
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+
+  function tick() {
+    const rem = label.expires_at - Math.floor(Date.now() / 1000);
+    if (rem <= 0) {
+      stopCountdown();
+      currentLabel = null;
+      renderInactive();
+      updateRequestSim(false);
+      return;
+    }
+    const m = String(Math.floor(rem / 60)).padStart(2, '0');
+    const s = String(rem % 60).padStart(2, '0');
+    expiresIn.textContent = `${m}:${s}`;
+  }
+}
+
+function stopCountdown() {
+  if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+}
+
+// ── Request simulation ───────────────────────────────────────────────────────
+function updateRequestSim(hasLabel) {
+  const results = hasLabel
+    ? ['ok', 'ok', 'ok']       // all pass when human label present
+    : ['blocked', 'blocked', 'blocked']; // all blocked without label
+
+  const badges = ['r1badge', 'r2badge', 'r3badge'];
+  badges.forEach((id, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const status = results[i];
+      el.className = `req-badge badge-${status}`;
+      el.textContent = status === 'ok' ? '✓ human' : '✗ blocked';
+    }, i * 280);
+  });
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+</body>
+</html>
