@@ -27,7 +27,7 @@ A public issue immediately discloses the vulnerability to potential attackers be
 
 Send a detailed report to:
 
-**Email:** security@humanproof.org *(placeholder — update before publishing)*
+**Email:** security@tweakz.de 
 
 Or use GitHub's private [Security Advisory](https://github.com/YOUR_USERNAME/humanproof/security/advisories/new) feature.
 
