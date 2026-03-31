@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Stories – Identität im Netz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --border: #1e2330;
+    --accent: #00e5ff;
+    --accent2: #ff3c6e;
+    --accent3: #c6ff00;
+    --text: #e8eaf0;
+    --muted: #5a6070;
+    --tag-bg: #0d1a1f;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,229,255,0.03) 39px, rgba(0,229,255,0.03) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,229,255,0.03) 39px, rgba(0,229,255,0.03) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    margin-bottom: 64px;
+    animation: fadeSlideDown 0.8s ease both;
+  }
+
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    display: inline-block;
+    padding: 4px 12px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .badge::before {
+    content: '';
+    position: absolute;
+    left: -4px; top: -4px;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  h1 {
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 16px;
+  }
+
+  h1 .highlight {
+    color: var(--accent);
+    position: relative;
+  }
+  h1 .highlight2 { color: var(--accent2); }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 520px;
+    border-left: 2px solid var(--border);
+    padding-left: 16px;
+    margin-top: 24px;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0;
+    opacity: 0.3;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--muted);
+  }
+  .divider span {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+  }
+
+  /* Cards */
+  .cards {
+    display: grid;
+    gap: 24px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 36px 32px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+    animation: fadeSlideUp 0.7s ease both;
+  }
+  .card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .card:nth-child(1) { animation-delay: 0.1s; }
+  .card:nth-child(2) { animation-delay: 0.2s; }
+  .card:nth-child(3) { animation-delay: 0.3s; }
+  .card:nth-child(4) { animation-delay: 0.4s; }
+  .card:nth-child(5) { animation-delay: 0.5s; }
+
+  /* Accent corner strip */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--card-color, var(--accent));
+    transition: width 0.3s;
+  }
+  .card:hover::before { width: 6px; }
+
+  .card-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--card-color, var(--accent));
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-number::after {
+    content: '';
+    flex: 1;
+    max-width: 40px;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.4;
+  }
+
+  .card-role {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    background: var(--tag-bg);
+    color: var(--card-color, var(--accent));
+    border: 1px solid var(--card-color, var(--accent));
+    display: inline-block;
+    padding: 3px 10px;
+    margin-bottom: 20px;
+    opacity: 0.85;
+  }
+
+  .card h2 {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin-bottom: 18px;
+    line-height: 1.2;
+  }
+
+  /* Story block */
+  .story-block {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: #b0b8c8;
+  }
+
+  .story-block .keyword {
+    color: var(--accent3);
+    font-weight: 700;
+  }
+
+  /* Acceptance criteria */
+  .criteria-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .criteria-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .criteria-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #c8d0dc;
+  }
+
+  .criteria-list li::before {
+    content: '→';
+    color: var(--card-color, var(--accent));
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* Priority tag */
+  .priority {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-top: 20px;
+    text-transform: uppercase;
+  }
+  .priority.hoch { background: rgba(255,60,110,0.15); color: var(--accent2); border: 1px solid var(--accent2); }
+  .priority.mittel { background: rgba(0,229,255,0.1); color: var(--accent); border: 1px solid var(--accent); }
+  .priority.kritisch { background: rgba(198,255,0,0.1); color: var(--accent3); border: 1px solid var(--accent3); }
+
+  /* Footer note */
+  .footnote {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.8;
+    animation: fadeSlideUp 0.8s 0.6s ease both;
+  }
+  .footnote strong { color: var(--text); }
+
+  /* Animations */
+  @keyframes fadeSlideDown {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header class="header">
+    <div class="badge">Product Backlog · 2026</div>
+    <h1>
+      <span class="highlight">Identität</span><br>
+      im digitalen<br>
+      <span class="highlight2">Raum</span>
+    </h1>
+    <p class="subtitle">
+      Mit dem Aufkommen generativer KI wird die Unterscheidung zwischen Mensch und Maschine im Netz nahezu unmöglich.
+      Diese User Stories adressieren die Notwendigkeit einer gesetzlichen, technischen und ethischen Grundlage
+      für eine verifizierte, dennoch anonyme digitale Identität.
+    </p>
+  </header>
+
+  <div class="divider"><span>User Stories</span></div>
+
+  <div class="cards">
+
+    <!-- Story 1 -->
+    <article class="card" style="--card-color: #00e5ff;">
+      <div class="card-number">US-001</div>
+      <div class="card-role">Rolle: Internetnutzer / Bürgerin</div>
+      <h2>Browser-Authentifizierung vor dem Surfen</h2>
+      <div class="story-block">
+        <span class="keyword">Als</span> Internetnutzerin<br>
+        <span class="keyword">möchte ich</span> mich einmalig pro Browser-Session über ein staatlich anerkanntes,
+        anonymes Verfahren als Mensch identifizieren können,<br>
+        <span class="keyword">damit</span> meine Aktivitäten im Netz rechtlich einem realen Menschen zugeordnet werden können,
+        ohne dass meine persönlichen Daten öffentlich sichtbar sind.
+      </div>
+      <p class="criteria-title">Akzeptanzkriterien</p>
+      <ul class="criteria-list">
+        <li>Der Authentifizierungsprozess dauert maximal 10 Sekunden und ist barrierefrei.</li>
+        <li>Es wird kein Klarname gespeichert – nur ein anonymes, kryptografisches „Human-Label" wird übertragen.</li>
+        <li>Der Browser zeigt nach erfolgreicher Authentifizierung ein standardisiertes Symbol (z. B. „✓ Mensch verifiziert") an.</li>
+        <li>Ohne Authentifizierung sind nur öffentlich-rechtliche Basisdienste (Notfall, Behörden) erreichbar.</li>
+        <li>Das Label ist nicht zurückverfolgbar durch Dritte, nur durch autorisierte Strafverfolgungsbehörden mit Richterbeschluss.</li>
+      </ul>
+      <span class="priority kritisch">Priorität: Kritisch</span>
+    </article>
+
+    <!-- Story 2 -->
+    <article class="card" style="--card-color: #ff3c6e;">
+      <div class="card-number">US-002</div>
+      <div class="card-role">Rolle: Plattformbetreiber / Online-Dienst</div>
+      <h2>Plattformseitige KI-Erkennung & Human-Label-Prüfung</h2>
+      <div class="story-block">
+        <span class="keyword">Als</span> Betreiber einer Online-Plattform<br>
+        <span class="keyword">möchte ich</span> für jeden eingehenden Request automatisch prüfen können,
+        ob ein gültiges Human-Label vorliegt,<br>
+        <span class="keyword">damit</span> ich KI-gesteuerte Massenaktionen (z. B. Fake-Kommentare, Spam, Manipulation)
+        technisch und rechtssicher blockieren kann.
+      </div>
+      <p class="criteria-title">Akzeptanzkriterien</p>
+      <ul class="criteria-list">
+        <li>Eine standardisierte API-Schnittstelle ermöglicht die Label-Validierung in unter 50 ms.</li>
+        <li>Requests ohne gültiges Human-Label werden mit HTTP 451 (Gesetzlich nicht verfügbar) zurückgewiesen.</li>
+        <li>Das System unterscheidet zwischen menschlichen Nutzern und autorisiert betriebenen KI-Agenten mit eigenem Maschinentoken.</li>
+        <li>Plattformen haften nicht für blockierte Inhalte, sofern sie die Prüfpflicht gemäß Gesetz erfüllen.</li>
+        <li>Logs enthalten keine personenbezogenen Daten, nur anonymisierte Label-Hashes.</li>
+      </ul>
+      <span class="priority hoch">Priorität: Hoch</span>
+    </article>
+
+    <!-- Story 3 -->
+    <article class="card" style="--card-color: #c6ff00;">
+      <div class="card-number">US-003</div>
+      <div class="card-role">Rolle: Strafverfolgungsbehörde / Staatsanwaltschaft</div>
+      <h2>Rückverfolgbarkeit bei strafbaren KI-Handlungen</h2>
+      <div class="story-block">
+        <span class="keyword">Als</span> Staatsanwalt<br>
+        <span class="keyword">möchte ich</span> bei nachgewiesener strafbarer Handlung, die über einen KI-Dienst ausgeführt wurde,
+        das anonyme Human-Label per richterlichem Beschluss in eine reale Identität auflösen können,<br>
+        <span class="keyword">damit</span> Täter rechtlich verfolgt und Opfer geschützt werden können,
+        ohne dass anlasslose Massenüberwachung stattfindet.
+      </div>
+      <p class="criteria-title">Akzeptanzkriterien</p>
+      <ul class="criteria-list">
+        <li>Die Auflösung eines Labels ist ausschließlich mit richterlichem Beschluss und konkretem Anfangsverdacht möglich.</li>
+        <li>Jede Anfrage zur Label-Auflösung wird in einem unveränderlichen Audit-Log erfasst und unabhängig geprüft.</li>
+        <li>Die Auflösung erfolgt innerhalb von 24 Stunden nach Beschluss durch eine zentrale, unabhängige Treuhänderstelle.</li>
+        <li>KI-Anbieter sind verpflichtet, bei der Nutzung ihrer Dienste für strafbare Zwecke eine Prompt-Protokollierung (verschlüsselt, gesetzeskonform) vorzuhalten.</li>
+        <li>Betroffene werden nach Abschluss des Verfahrens über die Auflösung informiert, sofern dies den Ermittlungszweck nicht gefährdet.</li>
+      </ul>
+      <span class="priority kritisch">Priorität: Kritisch</span>
+    </article>
+
+    <!-- Story 4 -->
+    <article class="card" style="--card-color: #b57aff;">
+      <div class="card-number">US-004</div>
+      <div class="card-role">Rolle: KI-Entwickler / Unternehmen</div>
+      <h2>Maschinentoken für legitime KI-Agenten</h2>
+      <div class="story-block">
+        <span class="keyword">Als</span> Entwickler eines KI-Agenten<br>
+        <span class="keyword">möchte ich</span> meinen Dienst mit einem offiziellen Maschinentoken registrieren und kennzeichnen können,<br>
+        <span class="keyword">damit</span> mein KI-Agent transparent als solcher erkennbar ist, rechtlich operieren darf
+        und nicht fälschlicherweise als menschlicher Akteur behandelt oder für illegale Zwecke missbraucht wird.
+      </div>
+      <p class="criteria-title">Akzeptanzkriterien</p>
+      <ul class="criteria-list">
+        <li>Jeder KI-Agent benötigt ein behördlich registriertes Maschinentoken mit Ablaufdatum und Verwendungszweck.</li>
+        <li>Das Token ist für Empfänger-Plattformen maschinenlesbar und unterscheidet KI von Mensch eindeutig.</li>
+        <li>KI-Agenten ohne Maschinentoken werden wie nicht-authentifizierte Nutzer behandelt und blockiert.</li>
+        <li>Ein öffentliches Register listet alle zugelassenen KI-Agenten mit Betreiberangabe (DSGVO-konform).</li>
+        <li>Bei Missbrauch des Tokens haftet der registrierte Betreiber nach geltendem Recht.</li>
+      </ul>
+      <span class="priority hoch">Priorität: Hoch</span>
+    </article>
+
+    <!-- Story 5 -->
+    <article class="card" style="--card-color: #ff9f40;">
+      <div class="card-number">US-005</div>
+      <div class="card-role">Rolle: Minderjährige / Schüler</div>
+      <h2>Altersadaptiertes Human-Label für Schutzpersonen</h2>
+      <div class="story-block">
+        <span class="keyword">Als</span> Minderjähriger Nutzer<br>
+        <span class="keyword">möchte ich</span> ein speziell geschütztes Human-Label erhalten,
+        das mein Alter (ohne genaues Geburtsdatum) als Kategorie enthält,<br>
+        <span class="keyword">damit</span> Plattformen automatisch strengere Kinderschutzmaßnahmen anwenden
+        und ich nicht von KI-Systemen oder Erwachsenen unbemerkt manipuliert oder belästigt werden kann.
+      </div>
+      <p class="criteria-title">Akzeptanzkriterien</p>
+      <ul class="criteria-list">
+        <li>Das Label enthält ausschließlich die anonyme Altersgruppe (z. B. „unter 18"), keine weiteren Daten.</li>
+        <li>Plattformen mit altersgeschützten Inhalten lehnen Zugang bei Minderjährigen-Label automatisch ab.</li>
+        <li>KI-Chatbots erkennen das Label und aktivieren strikte Gesprächsfilter sowie Meldepflichten bei Grenzwertverstößen.</li>
+        <li>Eltern oder Erziehungsberechtigte müssen die initiale Label-Erstellung für Kinder unter 14 Jahren autorisieren.</li>
+        <li>Das System ist kompatibel mit bestehenden EU-Regelungen (DSA, DSGVO, KI-Verordnung).</li>
+      </ul>
+      <span class="priority mittel">Priorität: Mittel</span>
+    </article>
+
+  </div>
+
+  <footer class="footnote">
+    <strong>Technologischer Kontext:</strong> Alle Stories basieren auf dem Prinzip der <em>anonymen Verifikation</em> –
+    vergleichbar mit Zero-Knowledge-Proofs. Kein zentrales System speichert eine Verknüpfung zwischen Identität und Verhalten.
+    Die gesetzliche Grundlage muss in enger Abstimmung mit EU-Datenschutzrecht (DSGVO), dem Digital Services Act (DSA)
+    und der EU-KI-Verordnung entwickelt werden. Technische Umsetzung sollte auf offenen Standards (W3C DID, eIDAS 2.0) aufbauen.
+  </footer>
+
+</div>
+</body>
+</html>
