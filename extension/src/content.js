@@ -1,51 +1,50 @@
 /**
- * HumanProof Browser Extension — Content Script
+ * HumanProof — content.js
  *
- * Injected into every page. Responsibilities:
- * - Detects if a page supports HumanProof verification
- * - Shows a subtle indicator if the current site requests a Human Label
- * - Communicates page-side verification requests to the background worker
+ * Injected into every page. Checks if the page declares HumanProof support
+ * via a meta tag and optionally shows a non-intrusive banner.
  *
- * NOTE: This script has no access to the Human Label itself.
- * Label injection happens in background.js at the HTTP header level.
+ * Integration signal (add to your site's <head>):
+ *   <meta name="humanproof" content="required">   ← blocks without label
+ *   <meta name="humanproof" content="optional">   ← informs but does not block
  */
 
+'use strict';
+
 (function () {
-  'use strict';
 
-  // Check if this page signals HumanProof support via a meta tag:
-  // <meta name="humanproof" content="required|optional">
-  const metaTag = document.querySelector('meta[name="humanproof"]');
+  // Only act if the page opts in
+  const meta = document.querySelector('meta[name="humanproof"]');
+  if (!meta) return;
 
-  if (!metaTag) return; // Site does not participate — do nothing
+  const mode = meta.getAttribute('content'); // 'required' | 'optional'
+  if (mode !== 'required' && mode !== 'optional') return;
 
-  const requirement = metaTag.getAttribute('content'); // 'required' | 'optional'
+  // Ask the background service worker whether a label is currently active
+  chrome.runtime.sendMessage({ type: 'GET_STATUS' }, (response) => {
 
-  if (!['required', 'optional'].includes(requirement)) return;
-
-  // Query background for current label status
-  chrome.runtime.sendMessage({ type: 'GET_LABEL' }, (label) => {
+    // Extension may have been reloaded — guard against missing runtime
     if (chrome.runtime.lastError) return;
+    if (!response) return;
 
-    if (!label && requirement === 'required') {
-      showBanner('required');
-    } else if (!label && requirement === 'optional') {
-      showBanner('optional');
+    const hasLabel = response.active;
+
+    if (!hasLabel) {
+      showBanner(mode);
     }
-    // If label exists: nothing to show — header is already being sent
+    // If label exists: nothing to display — label is visible in the popup badge
   });
 
-  /**
-   * Renders a small, non-intrusive banner at the top of the page
-   * informing the user that the site supports/requires HumanProof.
-   */
-  function showBanner(type) {
-    if (document.getElementById('humanproof-banner')) return;
+  // ── Banner ──────────────────────────────────────────────────────────────────
+  function showBanner(mode) {
+    if (document.getElementById('hp-banner')) return;
+
+    const isRequired = mode === 'required';
+    const color = isRequired ? '#ff6b2b' : '#c6ff00';
+    const bg    = isRequired ? '#1a0800' : '#0a0f0a';
 
     const banner = document.createElement('div');
-    banner.id = 'humanproof-banner';
-
-    const isRequired = type === 'required';
+    banner.id = 'hp-banner';
 
     Object.assign(banner.style, {
       position:       'fixed',
@@ -53,30 +52,33 @@
       left:           '0',
       right:          '0',
       zIndex:         '2147483647',
-      background:     isRequired ? '#1a0a00' : '#0a0f0a',
-      borderBottom:   `1px solid ${isRequired ? '#ff6b2b' : '#c6ff00'}`,
-      color:          isRequired ? '#ff6b2b' : '#c6ff00',
+      background:     bg,
+      borderBottom:   `1px solid ${color}`,
+      color:          color,
       fontFamily:     'monospace',
       fontSize:       '11px',
-      padding:        '6px 16px',
+      padding:        '7px 16px',
       display:        'flex',
       alignItems:     'center',
       justifyContent: 'space-between',
-      letterSpacing:  '0.04em',
+      letterSpacing:  '0.03em',
     });
+
+    const icon = isRequired ? '⚠' : 'ℹ';
+    const msg  = isRequired
+      ? 'This site requires a HumanProof label to interact. Click the extension icon.'
+      : 'This site supports HumanProof. Click the extension icon to generate a label.';
 
     banner.innerHTML = `
-      <span>
-        ${isRequired ? '⚠' : 'ℹ'} This site ${isRequired ? 'requires' : 'supports'} HumanProof verification.
-        ${isRequired ? 'A Human Label is needed to interact.' : ''}
-      </span>
-      <span style="cursor:pointer;opacity:0.6" id="hp-dismiss">✕</span>
+      <span>${icon}&nbsp; ${msg}</span>
+      <span id="hp-close" style="cursor:pointer;opacity:0.55;padding-left:16px;font-size:13px;">✕</span>
     `;
 
-    document.documentElement.prepend(banner);
+    document.documentElement.insertBefore(banner, document.documentElement.firstChild);
 
-    document.getElementById('hp-dismiss')?.addEventListener('click', () => {
+    document.getElementById('hp-close')?.addEventListener('click', () => {
       banner.remove();
-    });
+    }, { once: true });
   }
+
 })();

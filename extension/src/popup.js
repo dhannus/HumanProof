@@ -1,157 +1,166 @@
 /**
- * HumanProof Browser Extension — Popup Script
- * PoC: Simulates ZKP-based Human Label generation.
- * No real identity data is used or transmitted.
+ * HumanProof — popup.js
+ * Runs inside the browser extension popup.
+ * Guards all chrome.* calls so errors are clear if run outside extension context.
  */
 
-const LABEL_TTL_SECONDS = 3600; // 1 hour
+'use strict';
 
-// DOM references
-const statusDot    = document.getElementById('statusDot');
-const statusText   = document.getElementById('statusText');
-const labelInfo    = document.getElementById('labelInfo');
-const tokenPreview = document.getElementById('tokenPreview');
-const tokenValue   = document.getElementById('tokenValue');
-const expiresIn    = document.getElementById('expiresIn');
-const verifyBtn    = document.getElementById('verifyBtn');
-const revokeBtn    = document.getElementById('revokeBtn');
+const TTL = 3600; // seconds
 
-// ─── Initialise UI from stored state ─────────────────────────────────────────
+// ── DOM ──────────────────────────────────────────────────────────────────────
+const dot         = document.getElementById('dot');
+const statusText  = document.getElementById('statusText');
+const metaGrid    = document.getElementById('metaGrid');
+const tokenBox    = document.getElementById('tokenBox');
+const tokenPrev   = document.getElementById('tokenPreview');
+const expiresIn   = document.getElementById('expiresIn');
+const btnVerify   = document.getElementById('btnVerify');
+const btnRevoke   = document.getElementById('btnRevoke');
 
-chrome.storage.local.get(['humanLabel'], ({ humanLabel }) => {
+// ── Sanity check ─────────────────────────────────────────────────────────────
+if (typeof chrome === 'undefined' || !chrome.storage) {
+  statusText.textContent = 'Error: not running as extension';
+  dot.className = 'dot dot-inactive';
+  btnVerify.disabled = true;
+  throw new Error(
+    'HumanProof popup must run inside a browser extension context. ' +
+    'Load via chrome://extensions → Load unpacked.'
+  );
+}
+
+// ── Boot: restore state from storage ─────────────────────────────────────────
+chrome.storage.local.get('humanLabel', ({ humanLabel }) => {
   if (humanLabel && !isExpired(humanLabel)) {
     renderActive(humanLabel);
-  } else if (humanLabel && isExpired(humanLabel)) {
-    chrome.storage.local.remove('humanLabel');
-    renderInactive();
   } else {
+    if (humanLabel) chrome.storage.local.remove('humanLabel');
     renderInactive();
   }
 });
 
-// ─── Button handlers ──────────────────────────────────────────────────────────
-
-verifyBtn.addEventListener('click', async () => {
+// ── Button handlers ───────────────────────────────────────────────────────────
+btnVerify.addEventListener('click', async () => {
   renderPending();
 
-  // Simulate ZKP proof generation delay (real ZKP: ~200-800ms with snarkjs)
-  await delay(1200);
+  // Simulate ZKP proof generation latency (~200–800 ms in real snarkjs)
+  await sleep(1300);
 
-  const label = generateSimulatedLabel();
-  chrome.storage.local.set({ humanLabel: label });
+  const label = createLabel();
 
-  // Notify background service worker
-  chrome.runtime.sendMessage({ type: 'LABEL_GENERATED', label });
-
-  renderActive(label);
+  chrome.storage.local.set({ humanLabel: label }, () => {
+    // Notify background service worker so it can update the badge
+    chrome.runtime.sendMessage({ type: 'LABEL_GENERATED', label })
+      .catch(() => {}); // background may not be listening yet in PoC — that's fine
+    renderActive(label);
+  });
 });
 
-revokeBtn.addEventListener('click', () => {
-  chrome.storage.local.remove('humanLabel');
-  chrome.runtime.sendMessage({ type: 'LABEL_REVOKED' });
-  renderInactive();
+btnRevoke.addEventListener('click', () => {
+  chrome.storage.local.remove('humanLabel', () => {
+    chrome.runtime.sendMessage({ type: 'LABEL_REVOKED' }).catch(() => {});
+    renderInactive();
+  });
 });
 
-// ─── Simulated ZKP Label Generation (PoC) ────────────────────────────────────
-
+// ── Label generation (simulated ZKP) ─────────────────────────────────────────
 /**
- * In the real implementation, this would:
- * 1. Load the ZKP circuit (circom/snarkjs)
- * 2. Supply the user's local credential as private input
- * 3. Generate a Groth16 or PLONK proof
- * 4. Return the proof as the label's cryptographic core
+ * In production this would:
+ *   1. Load a compiled circom/snarkjs circuit
+ *   2. Feed the user's eIDAS 2.0 wallet credential as private input
+ *   3. Compute a Groth16 proof (~200–500 ms)
+ *   4. Return the proof bytes as the label's cryptographic core
  *
- * For the PoC, we simulate the output format only.
+ * For the PoC we simulate the output structure only.
  */
-function generateSimulatedLabel() {
+function createLabel() {
   const now = Math.floor(Date.now() / 1000);
   return {
     version:    '0.1',
     type:       'human-label',
-    proof:      generateSimulatedProof(),
+    proof:      randomHex(64),   // simulated — not a real ZKP proof
     issued_at:  now,
-    ttl:        LABEL_TTL_SECONDS,
-    expires_at: now + LABEL_TTL_SECONDS,
+    ttl:        TTL,
+    expires_at: now + TTL,
     scope:      'session',
     age_group:  null,
-    poc:        true  // flag: this is a simulated proof
+    poc:        true
   };
 }
 
-function generateSimulatedProof() {
-  // Simulated proof string — in production this is a real ZKP proof (~200 bytes)
-  const chars = 'abcdef0123456789';
-  return Array.from({ length: 64 }, () =>
-    chars[Math.floor(Math.random() * chars.length)]
-  ).join('');
+function randomHex(length) {
+  const chars = '0123456789abcdef';
+  return Array.from({ length }, () => chars[Math.floor(Math.random() * 16)]).join('');
 }
 
-// ─── UI State Renderers ───────────────────────────────────────────────────────
-
+// ── UI renderers ──────────────────────────────────────────────────────────────
 function renderInactive() {
-  statusDot.className = 'status-dot inactive';
+  dot.className = 'dot dot-inactive';
   statusText.textContent = 'Not verified';
-  labelInfo.style.display = 'none';
-  tokenPreview.style.display = 'none';
-  verifyBtn.style.display = 'block';
-  verifyBtn.disabled = false;
-  verifyBtn.textContent = '▶ Generate Human Label';
-  revokeBtn.style.display = 'none';
+  metaGrid.classList.add('hidden');
+  tokenBox.classList.add('hidden');
+  btnVerify.classList.remove('hidden');
+  btnVerify.disabled = false;
+  btnVerify.textContent = '▶ Generate Human Label';
+  btnRevoke.classList.add('hidden');
+  stopCountdown();
 }
 
 function renderPending() {
-  statusDot.className = 'status-dot pending';
+  dot.className = 'dot dot-pending';
   statusText.textContent = 'Generating proof…';
-  verifyBtn.disabled = true;
-  verifyBtn.textContent = '… Computing';
+  btnVerify.disabled = true;
+  btnVerify.textContent = '… Computing ZKP';
 }
 
 function renderActive(label) {
-  statusDot.className = 'status-dot active';
+  dot.className = 'dot dot-active';
   statusText.textContent = 'Human verified ✓';
 
-  labelInfo.style.display = 'grid';
-  tokenPreview.style.display = 'block';
+  metaGrid.classList.remove('hidden');
+  tokenBox.classList.remove('hidden');
+  tokenPrev.textContent = `hp0.1:${label.proof.slice(0, 28)}…`;
 
-  const secondsLeft = label.expires_at - Math.floor(Date.now() / 1000);
-  expiresIn.textContent = formatDuration(secondsLeft);
+  btnVerify.classList.add('hidden');
+  btnRevoke.classList.remove('hidden');
 
-  tokenValue.textContent = `hp0.1:${label.proof.substring(0, 32)}…`;
-
-  verifyBtn.style.display = 'none';
-  verifyBtn.disabled = false;
-  revokeBtn.style.display = 'block';
-
-  // Live countdown
   startCountdown(label);
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function isExpired(label) {
-  return Math.floor(Date.now() / 1000) >= label.expires_at;
-}
-
-function formatDuration(seconds) {
-  if (seconds <= 0) return 'Expired';
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}m ${s}s`;
-}
-
-function delay(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// ── Countdown ─────────────────────────────────────────────────────────────────
+let _countdownInterval = null;
 
 function startCountdown(label) {
-  const interval = setInterval(() => {
-    const secondsLeft = label.expires_at - Math.floor(Date.now() / 1000);
-    if (secondsLeft <= 0) {
-      clearInterval(interval);
+  stopCountdown();
+  tick();
+  _countdownInterval = setInterval(tick, 1000);
+
+  function tick() {
+    const remaining = label.expires_at - Math.floor(Date.now() / 1000);
+    if (remaining <= 0) {
+      stopCountdown();
       chrome.storage.local.remove('humanLabel');
       renderInactive();
       return;
     }
-    expiresIn.textContent = formatDuration(secondsLeft);
-  }, 1000);
+    const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+    const s = (remaining % 60).toString().padStart(2, '0');
+    expiresIn.textContent = `${m}:${s}`;
+  }
+}
+
+function stopCountdown() {
+  if (_countdownInterval) {
+    clearInterval(_countdownInterval);
+    _countdownInterval = null;
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function isExpired(label) {
+  return !label.expires_at || Math.floor(Date.now() / 1000) >= label.expires_at;
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

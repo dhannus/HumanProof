@@ -2,21 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HumanProof</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       width: 320px;
-      min-height: 200px;
       background: #0d0f0a;
       color: #e8eae0;
       font-family: 'Courier New', Courier, monospace;
       font-size: 13px;
     }
 
-    /* Header */
     .header {
       background: #13150f;
       border-bottom: 1px solid #222518;
@@ -26,252 +23,169 @@
       gap: 10px;
     }
     .logo {
-      width: 20px;
-      height: 20px;
+      width: 22px; height: 22px;
       border: 2px solid #c6ff00;
       border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      color: #c6ff00;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #c6ff00; font-weight: bold;
       flex-shrink: 0;
     }
-    .header-text h1 {
-      font-size: 13px;
-      font-weight: bold;
-      color: #c6ff00;
-      letter-spacing: 0.08em;
-    }
-    .header-text p {
-      font-size: 10px;
-      color: #5a6050;
-      letter-spacing: 0.04em;
-    }
+    .header h1 { font-size: 13px; color: #c6ff00; letter-spacing: 0.08em; }
+    .header p  { font-size: 10px; color: #5a6050; margin-top: 2px; }
 
-    /* Status area */
-    .status-area {
-      padding: 20px 16px;
+    .body { padding: 16px; }
+
+    .poc-banner {
+      background: rgba(255,159,64,0.08);
+      border: 1px solid rgba(255,159,64,0.35);
+      padding: 8px 12px;
+      font-size: 10px;
+      color: #ff9f40;
+      line-height: 1.5;
+      margin-bottom: 14px;
     }
 
     .status-card {
       border: 1px solid #222518;
       background: #13150f;
       padding: 14px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-
     .status-label {
-      font-size: 9px;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #5a6050;
-      margin-bottom: 8px;
+      font-size: 9px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #5a6050; margin-bottom: 8px;
     }
-
     .status-value {
-      font-size: 15px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 15px; font-weight: bold;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .dot-inactive { background: #5a6050; }
+    .dot-active   { background: #c6ff00; box-shadow: 0 0 6px #c6ff00; }
+    .dot-pending  { background: #ff9f40; animation: blink 0.8s infinite; }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .meta-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px; margin-bottom: 12px;
+    }
+    .meta-cell {
+      border: 1px solid #222518; background: #13150f; padding: 10px;
+    }
+    .meta-cell .cl { font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #5a6050; margin-bottom: 4px; }
+    .meta-cell .cv { font-size: 12px; }
+    .cv-green { color: #c6ff00; }
+    .cv-muted { color: #5a6050; }
+
+    .token-box {
+      border: 1px solid #222518; background: #0a0c08;
+      padding: 10px; margin-bottom: 12px;
+    }
+    .token-box .tl {
+      font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #5a6050; margin-bottom: 6px;
+    }
+    .token-box .tv {
+      font-size: 10px; color: #c6ff00; opacity: 0.75;
+      word-break: break-all; line-height: 1.4;
     }
 
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-    .status-dot.active  { background: #c6ff00; box-shadow: 0 0 6px #c6ff00; }
-    .status-dot.inactive { background: #5a6050; }
-    .status-dot.pending { background: #ff9f40; animation: blink 1s infinite; }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    /* Label info */
-    .label-info {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .info-cell {
-      border: 1px solid #222518;
-      background: #13150f;
-      padding: 10px;
-    }
-    .info-cell .cell-label {
-      font-size: 9px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #5a6050;
-      margin-bottom: 4px;
-    }
-    .info-cell .cell-value {
-      font-size: 12px;
-      color: #e8eae0;
-    }
-    .info-cell .cell-value.green { color: #c6ff00; }
-    .info-cell .cell-value.muted { color: #5a6050; }
-
-    /* Token preview */
-    .token-preview {
-      border: 1px solid #222518;
-      background: #0a0c08;
-      padding: 10px;
-      margin-bottom: 14px;
-      word-break: break-all;
-    }
-    .token-preview .token-label {
-      font-size: 9px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #5a6050;
-      margin-bottom: 6px;
-    }
-    .token-preview .token-value {
-      font-size: 10px;
-      color: #c6ff00;
-      opacity: 0.7;
-      line-height: 1.4;
-    }
-
-    /* Buttons */
     .btn {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid;
-      background: transparent;
+      width: 100%; padding: 10px; border: 1px solid;
+      background: transparent; cursor: pointer;
       font-family: 'Courier New', Courier, monospace;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      margin-bottom: 8px;
+      font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; margin-bottom: 8px;
+      transition: background 0.15s, color 0.15s;
     }
     .btn:last-child { margin-bottom: 0; }
+    .btn-primary { border-color: #c6ff00; color: #c6ff00; }
+    .btn-primary:hover:not(:disabled) { background: #c6ff00; color: #0d0f0a; }
+    .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-danger { border-color: #ff3c6e; color: #ff3c6e; }
+    .btn-danger:hover { background: rgba(255,60,110,0.12); }
 
-    .btn-primary {
-      border-color: #c6ff00;
-      color: #c6ff00;
-    }
-    .btn-primary:hover {
-      background: #c6ff00;
-      color: #0d0f0a;
-    }
-    .btn-primary:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      border-color: #222518;
-      color: #5a6050;
-    }
-    .btn-secondary:hover {
-      border-color: #5a6050;
-      color: #e8eae0;
-    }
-
-    /* Footer */
     .footer {
       border-top: 1px solid #222518;
       padding: 8px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: flex; justify-content: space-between;
     }
     .footer a {
-      font-size: 9px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #5a6050;
-      text-decoration: none;
+      font-size: 9px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: #5a6050; text-decoration: none;
     }
     .footer a:hover { color: #c6ff00; }
-    .version {
-      font-size: 9px;
-      color: #5a6050;
-    }
+    .footer span { font-size: 9px; color: #5a6050; }
 
-    /* POC Banner */
-    .poc-banner {
-      background: rgba(255, 159, 64, 0.08);
-      border: 1px solid rgba(255, 159, 64, 0.3);
-      padding: 8px 12px;
-      margin-bottom: 14px;
-      font-size: 10px;
-      color: #ff9f40;
-      line-height: 1.5;
-    }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <div class="logo">H</div>
-    <div class="header-text">
+    <div>
       <h1>HUMANPROOF</h1>
       <p>Anonymous human verification</p>
     </div>
   </div>
 
-  <div class="status-area">
+  <div class="body">
 
     <div class="poc-banner">
-      ⚠ Proof of Concept — Simulated ZKP.<br>No real identity data used or transmitted.
+      ⚠ Proof of Concept — simulated ZKP.<br>
+      No real identity data is used or transmitted.
     </div>
 
+    <!-- Status -->
     <div class="status-card">
-      <div class="status-label">Current Status</div>
-      <div class="status-value" id="statusValue">
-        <div class="status-dot inactive" id="statusDot"></div>
+      <div class="status-label">Status</div>
+      <div class="status-value">
+        <div class="dot dot-inactive" id="dot"></div>
         <span id="statusText">Not verified</span>
       </div>
     </div>
 
-    <div class="label-info" id="labelInfo" style="display:none">
-      <div class="info-cell">
-        <div class="cell-label">Type</div>
-        <div class="cell-value green">Human Label</div>
+    <!-- Meta (shown when active) -->
+    <div class="meta-grid hidden" id="metaGrid">
+      <div class="meta-cell">
+        <div class="cl">Type</div>
+        <div class="cv cv-green">Human Label</div>
       </div>
-      <div class="info-cell">
-        <div class="cell-label">Scope</div>
-        <div class="cell-value">Session</div>
+      <div class="meta-cell">
+        <div class="cl">Scope</div>
+        <div class="cv">Session</div>
       </div>
-      <div class="info-cell">
-        <div class="cell-label">Expires in</div>
-        <div class="cell-value" id="expiresIn">—</div>
+      <div class="meta-cell">
+        <div class="cl">Expires in</div>
+        <div class="cv" id="expiresIn">—</div>
       </div>
-      <div class="info-cell">
-        <div class="cell-label">Age group</div>
-        <div class="cell-value muted">Not disclosed</div>
+      <div class="meta-cell">
+        <div class="cl">Age group</div>
+        <div class="cv cv-muted">Not disclosed</div>
       </div>
     </div>
 
-    <div class="token-preview" id="tokenPreview" style="display:none">
-      <div class="token-label">Label preview (truncated)</div>
-      <div class="token-value" id="tokenValue">—</div>
+    <!-- Token preview (shown when active) -->
+    <div class="token-box hidden" id="tokenBox">
+      <div class="tl">Label preview (truncated)</div>
+      <div class="tv" id="tokenPreview">—</div>
     </div>
 
-    <button class="btn btn-primary" id="verifyBtn">
-      ▶ Generate Human Label
-    </button>
-    <button class="btn btn-secondary" id="revokeBtn" style="display:none">
-      ✕ Revoke Label
-    </button>
+    <!-- Buttons -->
+    <button class="btn btn-primary" id="btnVerify">▶ Generate Human Label</button>
+    <button class="btn btn-danger hidden" id="btnRevoke">✕ Revoke Label</button>
 
   </div>
 
   <div class="footer">
-    <a href="https://github.com/dhannus/humanproof" target="_blank">GitHub</a>
-    <a href="https://github.com/dhannus/humanproof/blob/main/docs/architecture.md" target="_blank">How it works</a>
-    <span class="version">v0.1.0-poc</span>
+    <a href="https://github.com/YOUR_USERNAME/humanproof" target="_blank">GitHub</a>
+    <a href="https://github.com/YOUR_USERNAME/humanproof/blob/main/docs/architecture.md" target="_blank">How it works</a>
+    <span>v0.1.0-poc</span>
   </div>
 
   <script src="popup.js"></script>

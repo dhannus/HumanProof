@@ -12,12 +12,7 @@
 
   "action": {
     "default_popup": "src/popup.html",
-    "default_icon": {
-      "16":  "icons/icon-16.png",
-      "48":  "icons/icon-48.png",
-      "128": "icons/icon-128.png"
-    },
-    "default_title": "HumanProof — Click to verify"
+    "default_title": "HumanProof"
   },
 
   "background": {
@@ -35,17 +30,11 @@
 
   "permissions": [
     "storage",
-    "alarms"
+    "alarms",
+    "scripting"
   ],
 
   "host_permissions": [
     "<all_urls>"
-  ],
-
-  "web_accessible_resources": [
-    {
-      "resources": ["src/zkp-worker.js"],
-      "matches": ["<all_urls>"]
-    }
   ]
 }
