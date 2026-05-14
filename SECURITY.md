@@ -1,97 +1,99 @@
 # Security Policy
 
-## Supported versions
-
-| Version | Supported |
-|---|---|
-| 0.4.1   | ✅ Current production |
-| 0.4.0   | ⚠ Security fixes only, until 2026-08-01 |
-| < 0.4.0 | ❌ No longer supported |
-
 ## Reporting a vulnerability
 
-**Please do NOT open public GitHub issues for security vulnerabilities.**
+If you discover a security vulnerability in HHTTPS, please report it responsibly.
 
-Email: **daniel.hannuschka@tweakz.de**
-Subject: **`[SECURITY] <short description>`**
+**Do not open a public GitHub issue.**
 
-Include:
-- Affected version (`/hhttps/info` shows it)
+Email: [info@iamhmn.org](mailto:info@iamhmn.org)
+Subject: `[SECURITY] HHTTPS vulnerability`
+
+Please include:
+
+- Description of the vulnerability
 - Steps to reproduce
-- Impact assessment (your view of severity)
-- Suggested mitigation (optional)
+- Affected components (issuer, extension, OAuth flow, etc.)
+- Suggested fix if you have one
+- Whether you'd like to be credited in the disclosure
 
-### Response timeline
+## What to expect
 
-| | Target |
-|---|---|
-| Initial acknowledgement | 48 hours |
-| Severity assessment | 7 days |
-| Patch available | 30 days for critical/high; 90 days for medium/low |
-| Public disclosure | 90 days after patch deployed, OR 30 days if actively exploited |
+- **Acknowledgment within 72 hours** of receipt
+- **Initial assessment within 14 days** — is it confirmed, what's the severity, what's the rough remediation plan
+- **Fix timeline depends on severity**:
+  - Critical (token forgery, mass deanonymization, RCE): 30 days
+  - High (auth bypass, privacy leak in single user): 60 days
+  - Medium (information disclosure, DoS): 90 days
+  - Low (best-practice deviations): next regular release
+- **Public disclosure**: coordinated with reporter, typically 90 days after fix is deployed, unless the vulnerability is being actively exploited
 
-### Bug bounty
+## Scope
 
-There is no formal paid bug bounty program (this is an unfunded civic-tech project). However:
-- Reporters get explicit credit in `CHANGELOG.md` and the release notes.
-- For significant findings, I will gladly write a public LinkedIn/Mastodon recommendation.
-- If institutional funding materializes, retroactive bounties for past reports are on the table.
+In scope for vulnerability reports:
+
+- Issuer server code (`server/`)
+- Browser extension (`extension/`)
+- Reference OAuth client examples (`examples/`)
+- Protocol specifications (`protocol/`)
+- The live hhttps.org service
+
+Out of scope (please don't test against these):
+
+- Other people's identities or accounts
+- Third-party platforms using HHTTPS (report to that platform's security team)
+- iamhmn.org marketing site (low-stakes static content)
+- ask.iamhmn.org demo platform — report there only if it affects HHTTPS protocol itself
+
+## What we consider a security issue
+
+**Yes**:
+- Token forgery, signature bypass
+- Auth flow vulnerabilities (CSRF, redirect attacks, code interception)
+- Privacy leaks (PII exposure, cross-platform correlation possible)
+- Cryptographic weaknesses
+- Denial of service that's easy to trigger
+- Privilege escalation
+- Issuer key extraction paths
+
+**No**:
+- Best practice violations without a concrete exploit
+- Vulnerabilities in dependencies (report upstream, but tell us so we can update)
+- Theoretical attacks requiring impractical resources
+- Issues in unsupported environments (very old browsers, etc.)
+- "Send me the database" — that's not how this works
+
+## Bug bounty
+
+We do not currently have a paid bug bounty program. We're a small civic-tech project. We do offer:
+
+- Credit in `SECURITY.md` after disclosure
+- Credit in release notes when fixes are deployed
+- Public thanks on the project's communication channels
+- Strong, written reference if you want one for your résumé / portfolio
+
+## Historical disclosures
+
+(None yet — please be the first.)
 
 ## Threat model
 
-See [`docs/security.md`](docs/security.md) for the full threat model.
+For a complete view of what we consider in-scope threats, see [`docs/threat-model.md`](docs/threat-model.md).
 
-### What HHTTPS protects against
+## Cryptography
 
-- AI bots impersonating humans (WebAuthn hardware requirement)
-- Deepfake-based identity claims (cryptographic binding to passkey)
-- PII exposure in case of issuer breach (no PII stored)
-- Replay attacks (fresh challenges, 2-min TTL)
-- Phishing via lookalike domains (RP_ID binding)
-- MITM token injection (HTTPS + signature)
-- Centralized takedown (anyone can run an issuer)
+HHTTPS uses:
 
-### What HHTTPS does **not** protect against
+- **ES256 (ECDSA over P-256)** for JWT signatures
+- **HMAC-SHA256** for pairwise subject IDs
+- **SHA-256** for content hashing in signatures
+- **WebAuthn (FIDO2)** for user authentication
+- **TLS 1.2+ required** for all HTTP transport
 
-- Coerced verification (someone forcing you to authenticate)
-- Stolen unlocked device (short token TTL helps)
-- Insider threat at the issuer (transparency log planned for v0.5)
-- Compromised hardware enclave (below threat model — assumed secure)
-- Real-name verification (HHTTPS proves role, not specific identity)
+If you find concrete crypto weaknesses, please report. Theoretical post-quantum concerns are tracked on the roadmap (Phase 7+).
 
-## Cryptographic choices
+## Last security audit
 
-| Component | Algorithm | Justification |
-|---|---|---|
-| Token signature | ES256 (ECDSA P-256 + SHA-256) | RFC 7518, native WebAuthn support |
-| Refresh signature | ES256 (same key) | Simpler key management |
-| Webhook signature | HMAC-SHA-256 | Symmetric, fast for high volume |
-| Email tokens | SHA-256 of plain token | Hashed at rest |
+No formal external audit has been performed yet. This is a known gap. We are seeking funding for an audit in 2026 Q4.
 
-Issuer signing keys rotate every 90 days. JWKS publishes both old and new keys during the 7-day grace period.
-
-## Storage
-
-The reference issuer (`hhttps.org`) stores:
-
-| Table | Contains | Encrypted at rest? |
-|---|---|---|
-| `credentials` | WebAuthn public key + counter | No (public info) |
-| `sessions` | Short-lived state (10-min TTL) | No (no PII) |
-| `tokens` | Active JTIs | No |
-| `revoked_tokens` | Revoked JTIs (permanent) | No |
-| `roles_declared` | userId → role mapping | No (userId is opaque) |
-| `email_verifications` | Hashed token + hashed email (15-min TTL) | No |
-| `webhooks` | URL + HMAC secret | Plain (rotate as needed) |
-
-**Never stored**: real names, plain emails, phone numbers, postal addresses, behavioral data.
-
-## Audits
-
-| Phase | Status | Target |
-|---|---|---|
-| Independent code review | Planned | v0.5 — German university |
-| Penetration test | Planned | v0.6 — CISPA-affiliated firm |
-| Formal audit | Planned | v1.0 — before IETF RFC submission |
-
-Until then, the codebase is small (~1,200 lines for `server.js`) and reviewable. PRs welcome.
+In the meantime, the code is open source — your scrutiny is welcomed.

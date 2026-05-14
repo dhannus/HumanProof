@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500" role="img">
+  <title>How HHTTPS works in three steps</title>
+  <desc>Three panels showing user journey: identity setup with passkey, one-click login on any platform, signing content with inline verified seals.</desc>
+
+  <!-- Background -->
+  <rect width="1400" height="500" fill="#F8F1E4"/>
+
+  <!-- Title -->
+  <text x="700" y="50" font-family="Fraunces, Georgia, serif" font-size="28" font-weight="500" text-anchor="middle" fill="#2D2823">How it works</text>
+
+  <!-- ──────── Panel 1: Identity Setup ──────── -->
+  <g transform="translate(80, 110)">
+    <!-- Card -->
+    <rect x="0" y="0" width="380" height="340" rx="18" fill="#FCFAF5" stroke="#2D2823" stroke-width="0.5" stroke-opacity="0.12"/>
+
+    <!-- Step number -->
+    <circle cx="40" cy="40" r="22" fill="#C97D5B"/>
+    <text x="40" y="48" font-family="Fraunces, Georgia, serif" font-size="22" font-weight="600" text-anchor="middle" fill="#FCFAF5">1</text>
+
+    <!-- Step title -->
+    <text x="80" y="38" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#2D2823">Identity setup</text>
+    <text x="80" y="55" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#7A6F62" letter-spacing="0.5">ONCE — 30 SECONDS</text>
+
+    <!-- Illustration: phone + passkey -->
+    <g transform="translate(190, 160)">
+      <!-- Phone shape -->
+      <rect x="-60" y="-90" width="120" height="180" rx="14" fill="#EDE0C8" stroke="#2D2823" stroke-width="1.5"/>
+      <rect x="-50" y="-78" width="100" height="156" rx="6" fill="#FCFAF5"/>
+
+      <!-- Passkey icon on screen -->
+      <circle cx="0" cy="-20" r="22" fill="#C97D5B"/>
+      <path d="M -10 -22 L -3 -14 L 12 -32" stroke="#FCFAF5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+      <!-- Fingerprint label -->
+      <text x="0" y="22" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle" fill="#7A6F62">Passkey verified</text>
+
+      <!-- Small badges below -->
+      <rect x="-44" y="38" width="88" height="22" rx="11" fill="#A8B89E"/>
+      <text x="0" y="53" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" font-weight="500" text-anchor="middle" fill="#FCFAF5">developer</text>
+
+      <rect x="-32" y="68" width="64" height="14" rx="7" fill="#EDE0C8"/>
+      <text x="0" y="78" font-family="JetBrains Mono, ui-monospace, monospace" font-size="8" text-anchor="middle" fill="#4A413A">Trust 72</text>
+    </g>
+
+    <!-- Caption -->
+    <text x="190" y="310" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Register on hhttps.org with a passkey.</text>
+    <text x="190" y="328" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Verify a role. That's it.</text>
+  </g>
+
+  <!-- ──────── Arrow 1 → 2 ──────── -->
+  <g transform="translate(485, 280)" stroke="#C97D5B" fill="none">
+    <path d="M 0 0 L 30 0" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 22 -7 L 30 0 L 22 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- ──────── Panel 2: Login Anywhere ──────── -->
+  <g transform="translate(530, 110)">
+    <!-- Card -->
+    <rect x="0" y="0" width="380" height="340" rx="18" fill="#FCFAF5" stroke="#2D2823" stroke-width="0.5" stroke-opacity="0.12"/>
+
+    <!-- Step number -->
+    <circle cx="40" cy="40" r="22" fill="#C97D5B"/>
+    <text x="40" y="48" font-family="Fraunces, Georgia, serif" font-size="22" font-weight="600" text-anchor="middle" fill="#FCFAF5">2</text>
+
+    <!-- Step title -->
+    <text x="80" y="38" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#2D2823">Login anywhere</text>
+    <text x="80" y="55" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#7A6F62" letter-spacing="0.5">ONE CLICK ON ANY PLATFORM</text>
+
+    <!-- Illustration: browser window with login button -->
+    <g transform="translate(190, 175)">
+      <!-- Browser window -->
+      <rect x="-130" y="-80" width="260" height="160" rx="10" fill="#EDE0C8" stroke="#2D2823" stroke-width="1"/>
+      <rect x="-130" y="-80" width="260" height="22" fill="#D5C4A8" rx="10"/>
+      <rect x="-130" y="-72" width="260" height="14" fill="#D5C4A8"/>
+      <!-- Window dots -->
+      <circle cx="-118" cy="-70" r="3" fill="#C97D5B"/>
+      <circle cx="-108" cy="-70" r="3" fill="#F2B894"/>
+      <circle cx="-98" cy="-70" r="3" fill="#A8B89E"/>
+      <!-- URL bar -->
+      <rect x="-80" y="-76" width="200" height="12" rx="6" fill="#FCFAF5"/>
+      <text x="-74" y="-67" font-family="JetBrains Mono, ui-monospace, monospace" font-size="8" fill="#7A6F62">forum.example.de</text>
+
+      <!-- Login button -->
+      <g transform="translate(0, 10)">
+        <rect x="-110" y="-18" width="220" height="42" rx="21" fill="#2D2823"/>
+        <!-- HHTTPS mark on left -->
+        <rect x="-98" y="-10" width="22" height="22" rx="6" fill="#C97D5B"/>
+        <text x="-87" y="6" font-family="Fraunces, Georgia, serif" font-size="14" font-weight="600" text-anchor="middle" fill="#FCFAF5">H</text>
+        <!-- Button text shifted right of mark -->
+        <text x="15" y="9" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="500" text-anchor="middle" fill="#FCFAF5">Login with HHTTPS</text>
+      </g>
+
+      <!-- Cursor pointer -->
+      <g transform="translate(60, 30)">
+        <path d="M 0 0 L 0 14 L 4 11 L 7 16 L 9 15 L 6 10 L 11 10 Z" fill="#2D2823" stroke="#FCFAF5" stroke-width="1"/>
+      </g>
+    </g>
+
+    <!-- Caption -->
+    <text x="190" y="310" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Click the button. Authorize once.</text>
+    <text x="190" y="328" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Your role travels with you.</text>
+  </g>
+
+  <!-- ──────── Arrow 2 → 3 ──────── -->
+  <g transform="translate(935, 280)" stroke="#C97D5B" fill="none">
+    <path d="M 0 0 L 30 0" stroke-width="2" stroke-linecap="round"/>
+    <path d="M 22 -7 L 30 0 L 22 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- ──────── Panel 3: Sign Content ──────── -->
+  <g transform="translate(980, 110)">
+    <!-- Card -->
+    <rect x="0" y="0" width="380" height="340" rx="18" fill="#FCFAF5" stroke="#2D2823" stroke-width="0.5" stroke-opacity="0.12"/>
+
+    <!-- Step number -->
+    <circle cx="40" cy="40" r="22" fill="#C97D5B"/>
+    <text x="40" y="48" font-family="Fraunces, Georgia, serif" font-size="22" font-weight="600" text-anchor="middle" fill="#FCFAF5">3</text>
+
+    <!-- Step title -->
+    <text x="80" y="38" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="600" fill="#2D2823">Sign content</text>
+    <text x="80" y="55" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#7A6F62" letter-spacing="0.5">OPTIONAL — VIA EXTENSION</text>
+
+    <!-- Illustration: post bubble with inline seal -->
+    <g transform="translate(190, 175)">
+      <!-- Post bubble -->
+      <path d="M -130 -55 Q -130 -75 -110 -75 L 110 -75 Q 130 -75 130 -55 L 130 25 Q 130 45 110 45 L -50 45 L -65 60 L -60 45 L -110 45 Q -130 45 -130 25 Z"
+            fill="#EDE0C8" stroke="#2D2823" stroke-width="0.5" stroke-opacity="0.2"/>
+
+      <!-- Post header -->
+      <circle cx="-110" cy="-50" r="11" fill="#A8B89E"/>
+      <text x="-110" y="-46" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle" fill="#FCFAF5">💻</text>
+      <text x="-94" y="-50" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#2D2823">Dev-XQ9N</text>
+      <text x="-94" y="-38" font-family="JetBrains Mono, ui-monospace, monospace" font-size="8" fill="#7A6F62">Developer · 2 hours ago</text>
+
+      <!-- Post text lines -->
+      <text x="-110" y="-15" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#2D2823">Yes, you can definitely use</text>
+      <text x="-110" y="0" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#2D2823">rust async/await in this case.</text>
+
+      <!-- Inline seal -->
+      <g transform="translate(-110, 22)">
+        <rect x="0" y="-12" width="124" height="22" rx="11" fill="#5BAF6B"/>
+        <circle cx="14" cy="-1" r="8" fill="#889982"/>
+        <text x="14" y="3" font-family="system-ui, sans-serif" font-size="11" text-anchor="middle" fill="#FCFAF5">💻</text>
+        <text x="32" y="3" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#FCFAF5">Developer</text>
+        <line x1="92" y1="-8" x2="92" y2="6" stroke="#FCFAF5" stroke-opacity="0.35" stroke-width="0.5"/>
+        <text x="108" y="3" font-family="JetBrains Mono, ui-monospace, monospace" font-size="9" text-anchor="middle" fill="#FCFAF5">72</text>
+      </g>
+    </g>
+
+    <!-- Caption -->
+    <text x="190" y="310" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Right-click in any text field.</text>
+    <text x="190" y="328" font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle" fill="#4A413A">Your role stamps the post.</text>
+  </g>
+</svg>

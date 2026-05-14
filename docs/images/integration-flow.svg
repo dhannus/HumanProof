@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img">
+  <title>OAuth integration flow with HHTTPS</title>
+  <desc>Sequence diagram showing the OAuth 2.0 authorization code flow with PKCE between user browser, third-party platform, and HHTTPS issuer.</desc>
+
+  <!-- Background -->
+  <rect width="1200" height="700" fill="#F8F1E4"/>
+
+  <!-- Title -->
+  <text x="600" y="50" font-family="Fraunces, Georgia, serif" font-size="26" font-weight="500" text-anchor="middle" fill="#2D2823">OAuth integration flow</text>
+  <text x="600" y="78" font-family="Inter, system-ui, sans-serif" font-size="14" text-anchor="middle" fill="#7A6F62">Standard OAuth 2.0 with PKCE — works with any OIDC client library</text>
+
+  <!-- ──────── Three columns: User / Platform / Issuer ──────── -->
+
+  <!-- Column headers -->
+  <g transform="translate(200, 120)">
+    <rect x="-90" y="-30" width="180" height="60" rx="14" fill="#2D2823"/>
+    <text x="0" y="-5" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#FCFAF5">User Browser</text>
+    <text x="0" y="14" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" text-anchor="middle" fill="#F2B894">on your platform</text>
+  </g>
+
+  <g transform="translate(600, 120)">
+    <rect x="-90" y="-30" width="180" height="60" rx="14" fill="#A86246"/>
+    <text x="0" y="-5" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#FCFAF5">Your Server</text>
+    <text x="0" y="14" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" text-anchor="middle" fill="#F2B894">yoursite.com</text>
+  </g>
+
+  <g transform="translate(1000, 120)">
+    <rect x="-90" y="-30" width="180" height="60" rx="14" fill="#C97D5B"/>
+    <text x="0" y="-5" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="600" text-anchor="middle" fill="#FCFAF5">HHTTPS Issuer</text>
+    <text x="0" y="14" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" text-anchor="middle" fill="#FCFAF5">hhttps.org</text>
+  </g>
+
+  <!-- Lifelines (vertical dashed lines) -->
+  <line x1="200" y1="170" x2="200" y2="660" stroke="#2D2823" stroke-width="0.5" stroke-dasharray="3 4" opacity="0.3"/>
+  <line x1="600" y1="170" x2="600" y2="660" stroke="#2D2823" stroke-width="0.5" stroke-dasharray="3 4" opacity="0.3"/>
+  <line x1="1000" y1="170" x2="1000" y2="660" stroke="#2D2823" stroke-width="0.5" stroke-dasharray="3 4" opacity="0.3"/>
+
+  <!-- ──────── Step 1: Click login ──────── -->
+  <g>
+    <circle cx="115" cy="210" r="14" fill="#C97D5B"/>
+    <text x="115" y="215" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FCFAF5">1</text>
+    <text x="140" y="200" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#2D2823">User clicks "Login with HHTTPS"</text>
+    <text x="140" y="218" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#7A6F62">GET /login on your platform</text>
+
+    <!-- Arrow: user → server -->
+    <g stroke="#C97D5B" fill="none">
+      <line x1="200" y1="240" x2="595" y2="240" stroke-width="1.5"/>
+      <path d="M 588 235 L 595 240 L 588 245" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- ──────── Step 2: Generate PKCE + redirect ──────── -->
+  <g>
+    <circle cx="115" cy="290" r="14" fill="#C97D5B"/>
+    <text x="115" y="295" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FCFAF5">2</text>
+    <text x="140" y="280" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#2D2823">Server generates PKCE challenge, redirects browser</text>
+    <text x="140" y="298" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" fill="#7A6F62">→ hhttps.org/oauth/authorize?client_id=...&amp;code_challenge=...</text>
+
+    <!-- Arrow: server → user → issuer -->
+    <g stroke="#A86246" fill="none">
+      <line x1="595" y1="320" x2="205" y2="320" stroke-width="1.5"/>
+      <path d="M 212 315 L 205 320 L 212 325" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="400" y="313" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle" fill="#A86246" font-style="italic">302 redirect</text>
+
+    <g stroke="#A86246" fill="none">
+      <line x1="200" y1="340" x2="995" y2="340" stroke-width="1.5"/>
+      <path d="M 988 335 L 995 340 L 988 345" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- ──────── Step 3: Consent ──────── -->
+  <g>
+    <circle cx="915" cy="390" r="14" fill="#C97D5B"/>
+    <text x="915" y="395" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FCFAF5">3</text>
+    <text x="890" y="380" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" text-anchor="end" fill="#2D2823">Issuer shows consent screen</text>
+    <text x="890" y="398" font-family="Inter, system-ui, sans-serif" font-size="12" text-anchor="end" fill="#7A6F62">User clicks "Allow"</text>
+
+    <!-- Consent card mini-illustration -->
+    <g transform="translate(1080, 390)">
+      <rect x="-30" y="-22" width="60" height="44" rx="6" fill="#FCFAF5" stroke="#C97D5B" stroke-width="1"/>
+      <rect x="-22" y="-14" width="44" height="6" rx="3" fill="#EDE0C8"/>
+      <rect x="-22" y="-4" width="34" height="4" rx="2" fill="#EDE0C8"/>
+      <rect x="-22" y="4" width="44" height="12" rx="6" fill="#5BAF6B"/>
+      <text x="0" y="13" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="600" text-anchor="middle" fill="#FCFAF5">Allow</text>
+    </g>
+  </g>
+
+  <!-- ──────── Step 4: Redirect with code ──────── -->
+  <g>
+    <circle cx="915" cy="450" r="14" fill="#C97D5B"/>
+    <text x="915" y="455" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FCFAF5">4</text>
+    <text x="890" y="440" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" text-anchor="end" fill="#2D2823">Issuer redirects browser back with code</text>
+    <text x="890" y="458" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" text-anchor="end" fill="#7A6F62">→ yoursite.com/auth/callback?code=...</text>
+
+    <!-- Arrow: issuer → user → server -->
+    <g stroke="#A86246" fill="none">
+      <line x1="995" y1="480" x2="205" y2="480" stroke-width="1.5"/>
+      <path d="M 212 475 L 205 480 L 212 485" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="600" y="473" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle" fill="#A86246" font-style="italic">302 redirect with code</text>
+
+    <g stroke="#A86246" fill="none">
+      <line x1="200" y1="500" x2="595" y2="500" stroke-width="1.5"/>
+      <path d="M 588 495 L 595 500 L 588 505" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- ──────── Step 5: Token exchange ──────── -->
+  <g>
+    <circle cx="800" cy="560" r="14" fill="#C97D5B"/>
+    <text x="800" y="565" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FCFAF5">5</text>
+    <text x="800" y="540" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#2D2823">Server exchanges code for tokens</text>
+    <text x="800" y="582" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" text-anchor="middle" fill="#7A6F62">POST /oauth/token (server-to-server)</text>
+
+    <!-- Arrow: server → issuer -->
+    <g stroke="#A86246" fill="none">
+      <line x1="605" y1="560" x2="995" y2="560" stroke-width="1.5"/>
+      <path d="M 988 555 L 995 560 L 988 565" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <!-- Return arrow -->
+    <g stroke="#5BAF6B" fill="none">
+      <line x1="995" y1="600" x2="605" y2="600" stroke-width="1.5"/>
+      <path d="M 612 595 L 605 600 L 612 605" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <text x="800" y="618" font-family="JetBrains Mono, ui-monospace, monospace" font-size="11" text-anchor="middle" fill="#5BAF6B">id_token + access_token</text>
+  </g>
+
+  <!-- ──────── Step 6: Logged in ──────── -->
+  <g>
+    <rect x="60" y="630" width="500" height="44" rx="22" fill="#5BAF6B"/>
+    <circle cx="86" cy="652" r="10" fill="#FCFAF5"/>
+    <path d="M 81 651 L 85 655 L 91 648" stroke="#5BAF6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <text x="106" y="649" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#FCFAF5">User logged in with role + trust score</text>
+    <text x="106" y="664" font-family="JetBrains Mono, ui-monospace, monospace" font-size="10" fill="#FCFAF5" opacity="0.8">No name. No email. No tracking.</text>
+  </g>
+</svg>
